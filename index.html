@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
- 		<title>Restorani u blizini sa google places</title>
+ 		<title>Restaurants in der Näche mit google places</title>
 		<meta charset="UTF-8"> 		
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 		<meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,24 +14,24 @@
 		<script type="text/javascript" src="/../frameworks/shake.js"></script>		
 		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=true"></script> <!-- sensor se stavi na true kad nam treba automatsko odredjivanje lokacije -->
 		<script>
-		var prodrmano  = false;
-		var karta;
-		var sviMarkeri = [];
+		var geschuettelt = false;
+		var karte;
+		var alleMarkers = [];
 		
-		// ovo je funkcija za izracunavanje udaljenosti dveju tacaka na zemlji
-		function izracunajUdaljenost (mojaGeoDuzina, mojaGeoSirina, geoDuzinaObjekta, geoSirinaObjekta) {
-			poluprecnikZemlje = 6371;	// valjda su ovo kilometri
+		// diese Funktion berechnet die Entfernung zweier Punkte auf der Erde
+		function berechneEntfernung (meineGeoLaenge, meineGeoBreite, objektGeoLaenge, objektGeoBreite) {
+			radiusDerErde = 6371;	// in Kilometer
 				
-			mojaGeoDuzina = mojaGeoDuzina * (Math.PI/180);
-			mojaGeoSirina = mojaGeoSirina * (Math.PI/180);
-			geoDuzinaObjekta = geoDuzinaObjekta * (Math.PI/180);
-			geoSirinaObjekta = geoSirinaObjekta * (Math.PI/180);
+			meineGeoLaenge = meineGeoLaenge * (Math.PI/180);
+			meineGeoBreite = meineGeoBreite * (Math.PI/180);
+			objektGeoLaenge = objektGeoLaenge * (Math.PI/180);
+			objektGeoBreite = objektGeoBreite * (Math.PI/180);
 
-			x0 = mojaGeoDuzina * poluprecnikZemlje * Math.cos(mojaGeoSirina);
-			y0 = mojaGeoSirina * poluprecnikZemlje;
+			x0 = meineGeoLaenge * radiusDerErde * Math.cos(meineGeoBreite);
+			y0 = meineGeoBreite * radiusDerErde;
        	
-			x1 = geoDuzinaObjekta * poluprecnikZemlje * Math.cos(geoSirinaObjekta);
-			y1 = geoSirinaObjekta * poluprecnikZemlje;
+			x1 = objektGeoLaenge * radiusDerErde * Math.cos(objektGeoBreite);
+			y1 = objektGeoBreite * radiusDerErde;
 
 			dx = x0 - x1;
 			dy = y0 - y1;
@@ -41,104 +41,104 @@
 			if(d < 1) {
 				return Math.round(d*1000) + " m";
 			} else {
-				return Math.round(d*100)/100 + " km";	// ili (d*10)/10 ako hocu samo jednu decimalu
+				return Math.round(d*100)/100 + " km";	// oder (d*10)/10 falls ich nur eine Dezimalstelle nach dem Komma möchte
 			}
 		};
 	
-		function kadSeProdrma(){
-			// ovo ce biti izvrseno kad se mobilni uredjaj prodrma
-			if (!prodrmano) {
-				$("#uputstvo").toggleClass("nevidljivo");
-				$("#listaRestorana").toggleClass("vidljiva");
-				prodrmano = true;
+		function wennGeschuetteltWird(){
+			// dies wird ausgeführt, wenn das mobile Gerät geschüttelt wird
+			if (!geschuettelt) {
+				$("#erklaerung").toggleClass("unsichtbar");
+				$("#restaurantListe").toggleClass("sichtbar");
+				geschuettelt = true;
 			}
 		}
 
-		function prikaziListu(){						
-			if (prodrmano) {
-				$("#uputstvo").toggleClass("nevidljivo");
-				$("#listaRestorana").toggleClass("vidljiva");
-				prodrmano = false;
+		function listeAnzeigen(){						
+			if (geschuettelt) {
+				$("#erklaerung").toggleClass("unsichtbar");
+				$("#restaurantliste").toggleClass("sichtbar");
+				geschuettelt = false;
 			}
-			$("#okvir").css("-webkit-transform", "rotate(" + (Math.floor(Math.random() * 10)- 5) + "deg)"); // da se slika samo malo iskosi kad slece	
-			$("#okvir").toggleClass("vidljiv");
+			$("#rahmen").css("-webkit-transform", "rotate(" + (Math.floor(Math.random() * 10)- 5) + "deg)"); // um Liste etwas zu rotieren wenn diese landet	
+			$("#rahmen").toggleClass("sichtbar");
 		};
 	
-		function skloniListu() {
-			$("#okvir").toggleClass("vidljiv");
-			$("#okvir").css("-webkit-transform", "rotate(" + (Math.floor(Math.random() * 180)- 90) + "deg)"); // da se ram iskosi do 90° i nalevo i nadesno kad odlece			
+		function listeEntfernen() {
+			$("#rahmen").toggleClass("sichtbar");
+			$("#rahmen").css("-webkit-transform", "rotate(" + (Math.floor(Math.random() * 180)- 90) + "deg)"); // um Rahmen bis 90° rechts oder links zu drehen wenn Liste wegfliegt			
 		};	
 		
-		function otvoriProzor(i) {
-			skloniListu();
-			$("button").html("Lista restorana");			
-			sviMarkeri[i].info.open(karta, sviMarkeri[i]);					
+		function oeffneDasFenster(i) {
+			listeEntfernen();
+			$("button").html("Liste der Restaurants");			
+			alleMarkers[i].info.open(karte, alleMarkers[i]);					
 		}
 
 		$(document).ready (function(){						
 			$("button").click (function(){
-				if ($(this).html() == "Lista restorana") {
-					prikaziListu();
-					$(this).html("Geografska karta");
+				if ($(this).html() == "Liste der Restaurants") {
+					listeAnzeigen();
+					$(this).html("Karte mit Restaurants");
 				} else {
-					skloniListu();
-					$(this).html("Lista restorana");
+					listeEntfernen();
+					$(this).html("Liste der Restaurants");
 				}
 			});
 			
-			window.addEventListener("shake", kadSeProdrma, false); // dogadjaj "shake" je definisan u datoteci shake.js
+			window.addEventListener("shake", wennGeschuetteltWird, false); // "shake" event ist in der Datei shake.js definiert
 
-			navigator.geolocation.getCurrentPosition(function(pozicija){
-				var mojaGeoDuzina = pozicija.coords.longitude;
-				var mojaGeoSirina = pozicija.coords.latitude;
-				var mojaPozicija = new google.maps.LatLng(mojaGeoSirina, mojaGeoDuzina);
+			navigator.geolocation.getCurrentPosition(function(position){
+				var meineGeoLaenge = position.coords.longitude;
+				var meineGeoBreite = position.coords.latitude;
+				var meinePosition = new google.maps.LatLng(meineGeoBreite, meineGeoLaenge);
 				
-				var opcijeZaKartu = {
+				var kartenOptionen = {
 					zoom: 15,
-					center: mojaPozicija,
+					center: meinePosition,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 
-				karta = new google.maps.Map($("#geoKarta")[0], opcijeZaKartu);
+				karte = new google.maps.Map($("#geoKarte")[0], kartenOptionen);
 				
-				var zahtev = {
-					location: mojaPozicija,
-					radius: '500',		// metara, max. 50'000 m
+				var request = {
+					location: meinePosition,
+					radius: '500',		// meter, max. 50'000 m
 					types: ['restaurant']
-/*					query: 'Ochsner Shoes'	// za metodu textSearch() */
+/*					query: 'Ochsner Shoes'	// für Methode textSearch() */
 				};
 				
-				var usluga = new google.maps.places.PlacesService(karta);
-				usluga.search(zahtev, prikaziRestorane);
+				var dienst = new google.maps.places.PlacesService(karte);
+				dienst.search(request, restaurantsAnzeigen);
 
-				function prikaziRestorane(restorani, status) {
+				function restaurantsAnzeigen(restaurants, status) {
 					if (status == google.maps.places.PlacesServiceStatus.OK) {
-						for (var i = 0; i < restorani.length; i++) {
-							var restoran = restorani[i];
+						for (var i = 0; i < restaurants.length; i++) {
+							var restaurant = restaurants[i];
 							var marker = new google.maps.Marker({
-								map:		karta,
-								position:	new google.maps.LatLng(restoran.geometry.location.lat(), restoran.geometry.location.lng()),
-								title:		restoran.name,
+								map:		karte,
+								position:	new google.maps.LatLng(restaurant.geometry.location.lat(), restaurant.geometry.location.lng()),
+								title:		restaurant.name,
 								clickable:	true,
 								icon:		'../slike/icons/bubble-magenta-mala.png',
 								animation:	google.maps.Animation.DROP
 							});
-							marker.info = new google.maps.InfoWindow({ // svaki marker se prosiri za jedan info prozor
-								content: restoran.name + "<hr/>" + restoran.vicinity
+							marker.info = new google.maps.InfoWindow({ // info Fenster für jeden Marker
+								content: restaurant.name + "<hr/>" + restaurant.vicinity
 							});
 							
 							google.maps.event.addListener(marker, 'click', function() {
-								this.info.open(karta, this);
+								this.info.open(karte, this);
 							});
 							
 							google.maps.event.addListener(marker, 'closeclick', function() {
 								this.info.close();
 							});
 							
-							sviMarkeri.push(marker);
+							alleMarkers.push(marker);
 							
-							$("#listaRestorana ul").append("<li><a onclick='otvoriProzor(" + i + ")'>" + restoran.name +
-								" <span>" + izracunajUdaljenost(mojaGeoDuzina, mojaGeoSirina, restoran.geometry.location.lng(), restoran.geometry.location.lat()) +
+							$("#restaurantListe ul").append("<li><a onclick='oeffneDasFenster(" + i + ")'>" + restaurant.name +
+								" <span>" + izracunajUdaljenost(meineGeoLaenge, meineGeoBreite, restaurant.geometry.location.lng(), restaurant.geometry.location.lat()) +
 								"</span></a></li>");
 						}	
 					}
@@ -149,15 +149,15 @@
 	</head>
 	
 	<body>	
-		<div id="geoKarta"></div>
-		<div id="okvir">
-			<div id="listaRestorana">
-				<div id="naslov">Restorani u blizini</div>
+		<div id="geoKarte"></div>
+		<div id="rahmen">
+			<div id="restaurantListe">
+				<div id="titel">Restaurants in der Näche</div>
 				<ul>			
 				</ul>
 			</div>
-			<div id="uputstvo">A sad prodrmaj !</div>
+			<div id="erklaerung">und jetzt schütteln !</div>
 		</div>
-		<button>Lista restorana</button>
+		<button>Liste der Restaurants</button>
 	</body> 	
 </html>
