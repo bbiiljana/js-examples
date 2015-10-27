@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
- 		<title>Restaurants in der Näche mit google places</title>
+ 		<title>Restaurants in der Nähe mit google places</title>
 		<meta charset="UTF-8"> 		
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 		<meta name="apple-mobile-web-app-capable" content="yes">
@@ -138,7 +138,7 @@
 							alleMarkers.push(marker);
 							
 							$("#restaurantListe ul").append("<li><a onclick='oeffneDasFenster(" + i + ")'>" + restaurant.name +
-								" <span>" + izracunajUdaljenost(meineGeoLaenge, meineGeoBreite, restaurant.geometry.location.lng(), restaurant.geometry.location.lat()) +
+								" <span>" + berechneEntfernung(meineGeoLaenge, meineGeoBreite, restaurant.geometry.location.lng(), restaurant.geometry.location.lat()) +
 								"</span></a></li>");
 						}	
 					}
@@ -152,7 +152,7 @@
 		<div id="geoKarte"></div>
 		<div id="rahmen">
 			<div id="restaurantListe">
-				<div id="titel">Restaurants in der Näche</div>
+				<div id="titel">Restaurants in der Nähe</div>
 				<ul>			
 				</ul>
 			</div>
